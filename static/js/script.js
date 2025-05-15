@@ -3,35 +3,45 @@ document.addEventListener("DOMContentLoaded", function () {
     /** ---------------------------
      * 🎯 Fetch Books by Category using form POST submission
      * --------------------------- */
-   function getRecommendations() {
-    const genre = document.getElementById("genre").value;
-    if (!genre) {
-        alert("⚠️ Please select a genre.");
-        return;
+
+    document.getElementById("book-form").addEventListener("submit", function (e) {
+        e.preventDefault(); // prevent traditional POST
+        getRecommendations();
+    });
+
+
+    function getRecommendations() {
+        const genre = document.getElementById("genre").value;
+        if (!genre) {
+            alert("⚠️ Please select a genre.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("category", genre);
+
+        fetch("/find_books", {
+            method: "POST",
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(books => {
+                displayBooks(books);
+            })
+            .catch(error => console.error("❌ Error fetching books:", error));
     }
-
-    const formData = new FormData();
-    formData.append("category", genre);
-
-    fetch("/find_books", {
-        method: "POST",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(books => {
-        displayBooks(books);
-    })
-    .catch(error => console.error("❌ Error fetching books:", error));
-}
-
-
 
     /** ---------------------------
      * 🤖 Fetch AI-Based Recommendations using Google Books API (Front-end only)
      * --------------------------- */
     function getAIRecommendations() {
-        const genre = document.getElementById("genre").value;
+        const genreSelect = document.getElementById("genre");
+        if (!genreSelect) {
+            alert("⚠️ Genre dropdown not found in DOM.");
+            return;
+        }
+        const genre = genreSelect.value;
         if (!genre) {
             alert("⚠️ Please select a genre first.");
             return;
@@ -60,44 +70,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => console.error("❌ Error fetching AI recommendations:", error));
     }
-
-    function getAIRecommendations() {
-    const genreSelect = document.getElementById("genre");
-    if (!genreSelect) {
-        alert("⚠️ Genre dropdown not found in DOM.");
-        return;
-    }
-    const genre = genreSelect.value;
-    if (!genre) {
-        alert("⚠️ Please select a genre first.");
-        return;
-    }
-
-    const randomStartIndex = Math.floor(Math.random() * 20);
-    const googleBooksAPI = `https://www.googleapis.com/books/v1/volumes?q=subject:${encodeURIComponent(genre)}&startIndex=${randomStartIndex}&maxResults=20`;
-
-    fetch(googleBooksAPI)
-        .then(response => response.json())
-        .then(data => {
-            if (data.items) {
-                const books = data.items.map(item => ({
-                    title: item.volumeInfo.title || "Unknown Title",
-                    author: item.volumeInfo.authors ? item.volumeInfo.authors.join(", ") : "Unknown Author",
-                    rating: item.volumeInfo.averageRating || "N/A",
-                    published_date: item.volumeInfo.publishedDate || "Unknown",
-                    description: item.volumeInfo.description
-                        ? item.volumeInfo.description.slice(0, 150) + "..."
-                        : "No description available."
-                }));
-                displayBooks(books);
-            } else {
-                alert("❌ No AI recommendations found for this genre.");
-            }
-        })
-        .catch(error => console.error("❌ Error fetching AI recommendations:", error));
-}
-
-
 
     /** ---------------------------
      * 📚 Display Books in a Professional Grid Layout
@@ -140,9 +112,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-
     /** ---------------------------
-     * 🛒 Modal functions (same as your JS)
+     * 🛒 Modal functions
      * --------------------------- */
     function openBuyModal(title) {
         const modal = document.getElementById("buyModal");
@@ -193,17 +164,12 @@ document.addEventListener("DOMContentLoaded", function () {
         closeBuyModal();
     }
 
+    /** ---------------------------
+     * 📝 Submit Book Recommendation Placeholder
+    
 
     /** ---------------------------
-     * 📝 Submit Book Recommendation (submit form normally to /add route)
-     * --------------------------- */
-    function submitBookRecommendation() {
-        // Instead of fetch JSON, submit form normally or convert this to form submission
-        alert("Please use the 'Add Book' form to submit books.");
-    }
-
-    /** ---------------------------
-     * 🔗 Ensure all functions are globally accessible
+     * 🔗 Make functions globally accessible
      * --------------------------- */
     window.getRecommendations = getRecommendations;
     window.getAIRecommendations = getAIRecommendations;
