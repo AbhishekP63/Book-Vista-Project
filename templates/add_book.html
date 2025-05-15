@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommend a Book</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>📖 Recommend a Book</h1>
+        <p>Submit your favorite book to our collection!</p>
+    </header>
+
+    <main>
+        <section class="recommend-form">
+            <form method="POST" action="/submit">
+                <input type="text" name="title" placeholder="Book Title" required>
+                <input type="text" name="author" placeholder="Author Name" required>
+                <input type="date" name="published_date" placeholder="Published Date">
+
+                <input type="text"   name="description" placeholder="Short Description" rows="4" maxlength="100">
+
+                <select name="genre" required>
+                    <option value="">Select Genre</option>
+                    <option>Fiction</option>
+                    <option>Non-Fiction</option>
+                    <option>Mystery & Thriller</option>
+                    <option>Romance</option>
+                    <option>Science Fiction</option>
+                    <option>Fantasy</option>
+                    <option>Horror</option>
+                    <option>Biography</option>
+                    <option>Self-Help</option>
+                    <option>History</option>
+                    <option>Business & Finance</option>
+                </select><br>
+
+                <button type="submit" class="btn-primary">Add Book</button>
+            </form>
+            <br>
+            <a href="/" class="btn-back">⬅ Back to Home</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 English Book Recommender. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
