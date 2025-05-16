@@ -1,3 +1,4 @@
+#manual data which i imported into db 
 import sqlite3
 books_data= {
         

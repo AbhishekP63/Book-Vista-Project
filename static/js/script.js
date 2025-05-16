@@ -1,15 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    /** ---------------------------
-     * 🎯 Fetch Books by Category using form POST submission
-     * --------------------------- */
-
+    // Handle form submission for category-based book recommendations
     document.getElementById("book-form").addEventListener("submit", function (e) {
-        e.preventDefault(); // prevent traditional POST
+        e.preventDefault(); // Prevent default form behavior
         getRecommendations();
     });
 
-
+    // Fetch book recommendations from the server based on selected genre
     function getRecommendations() {
         const genre = document.getElementById("genre").value;
         if (!genre) {
@@ -26,24 +23,21 @@ document.addEventListener("DOMContentLoaded", function () {
             body: formData
         })
             .then(response => response.json())
-            .then(books => {
-                displayBooks(books);
-            })
-            .catch(error => console.error("❌ Error fetching books:", error));
+            .then(books => displayBooks(books))
+            .catch(error => console.error("Error fetching books:", error));
     }
 
-    /** ---------------------------
-     * 🤖 Fetch AI-Based Recommendations using Google Books API (Front-end only)
-     * --------------------------- */
+    // Fetch recommendations using Google Books API
     function getAIRecommendations() {
         const genreSelect = document.getElementById("genre");
         if (!genreSelect) {
-            alert("⚠️ Genre dropdown not found in DOM.");
+            alert("Genre dropdown not found.");
             return;
         }
+
         const genre = genreSelect.value;
         if (!genre) {
-            alert("⚠️ Please select a genre first.");
+            alert("Please select a genre first.");
             return;
         }
 
@@ -65,18 +59,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     }));
                     displayBooks(books);
                 } else {
-                    alert("❌ No AI recommendations found for this genre.");
+                    alert("No AI recommendations found for this genre.");
                 }
             })
-            .catch(error => console.error("❌ Error fetching AI recommendations:", error));
+            .catch(error => console.error("Error fetching AI recommendations:", error));
     }
 
-    /** ---------------------------
-     * 📚 Display Books in a Professional Grid Layout
-     * --------------------------- */
+    // Display a list of books on the page
     function displayBooks(books) {
         const bookList = document.getElementById("book-list");
-        bookList.innerHTML = ""; // Clear previous results
+        bookList.innerHTML = "";
 
         if (books.length === 0) {
             bookList.innerHTML = "<p>No books found.</p>";
@@ -103,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
             bookList.appendChild(bookDiv);
         });
 
-        // Attach buy button listeners
+        // Attach click events to all "Buy" buttons
         document.querySelectorAll(".buy-btn").forEach(button => {
             button.addEventListener("click", function () {
                 const title = this.getAttribute("data-title");
@@ -112,16 +104,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /** ---------------------------
-     * 🛒 Modal functions
-     * --------------------------- */
+    // Show the modal with buy options
     function openBuyModal(title) {
         const modal = document.getElementById("buyModal");
         const modalContent = document.getElementById("buyModalContent");
         const overlay = document.getElementById("buyModalOverlay");
 
         if (!modal || !modalContent || !overlay) {
-            console.error("❌ Modal elements are missing in HTML.");
+            console.error("Modal elements are missing.");
             return;
         }
 
@@ -137,12 +127,13 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.style.display = "block";
     }
 
+    // Hide the modal
     function closeBuyModal() {
         const modal = document.getElementById("buyModal");
         const overlay = document.getElementById("buyModalOverlay");
 
         if (!modal || !overlay) {
-            console.error("❌ Modal elements are missing in HTML.");
+            console.error("Modal elements are missing.");
             return;
         }
 
@@ -150,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.style.display = "none";
     }
 
+    // Open book purchase links
     function buyBook(title, platform) {
         title = decodeURIComponent(title);
         const amazonUrl = `https://www.amazon.in/s?k=${encodeURIComponent(title)}`;
@@ -164,13 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
         closeBuyModal();
     }
 
-    /** ---------------------------
-     * 📝 Submit Book Recommendation Placeholder
-    
-
-    /** ---------------------------
-     * 🔗 Make functions globally accessible
-     * --------------------------- */
+    // Make key functions accessible globally
     window.getRecommendations = getRecommendations;
     window.getAIRecommendations = getAIRecommendations;
     window.openBuyModal = openBuyModal;

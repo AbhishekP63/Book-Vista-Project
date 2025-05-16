@@ -5,11 +5,14 @@ from flask import (
     redirect,
     url_for,
     session,
+    flash,
     jsonify,
 )
 import sqlite3
 
 app = Flask(__name__)
+app.secret_key = b'\xc1\x84\xd1\xbc\x7f\x1c\x9b\xbb\xea\xca\xab\xe8\xfe\xf4.\xcb\x88\xa3\xfb\x1d;&\x07\xcf'  # Add this line
+
 conn = sqlite3.connect("books.db", check_same_thread=False)
 
 
@@ -20,7 +23,6 @@ def get_db_connection():
 
 
 # Signup Route
-# ------------------------------
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
@@ -32,7 +34,7 @@ def signup():
         phone = request.form["phone"]
 
         if password != confirm_password:
-
+            flash("Passwords do not match", "error")
             return render_template("signup.html", name=name, email=email, phone=phone)
 
         try:
@@ -42,24 +44,25 @@ def signup():
                 """
                 INSERT INTO users (name, gender, email, password, phone)
                 VALUES (?, ?, ?, ?, ?)
-            """,
+                """,
                 (name, gender, email, password, phone),
             )
             conn.commit()
             conn.close()
 
-           
+            flash("Account created successfully! Please login.", "success")
+            return redirect(url_for("login"))
 
         except sqlite3.IntegrityError:
-          
+            flash("Email already registered. Please use a different email.", "error")
             return render_template("signup.html", name=name, email=email, phone=phone)
 
     return render_template("signup.html")
 
+           
 
-# ------------------------------
+    
 # Login Route
-# ------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -68,20 +71,20 @@ def login():
 
         conn = sqlite3.connect("books.db")
         c = conn.cursor()
-        c.execute(
-            "SELECT * FROM users WHERE email = ? AND password = ?", (email, password)
-        )
+        c.execute("SELECT * FROM users WHERE email = ?", (email,))
         user = c.fetchone()
         conn.close()
 
-        if user:
+        if not user:
+            flash("You're a new user. Please register to continue.", "error")
+            return redirect(url_for("signup"))
+        elif user[4] != password:  # assuming password is at index 4
+            flash("Invalid email or password", "error")
+            return render_template("login.html", email=email)
+        else:
             session["user_id"] = user[0]
             session["user_name"] = user[1]
-
             return redirect(url_for("home"))
-        else:
-          
-            return render_template("login.html", email=email)
 
     return render_template("login.html")
 
@@ -123,11 +126,7 @@ def find_books():
 
     # Or render the same index.html with filtered books
     return render_template("index.html", books=books)
-
-
-# ------------------------------
 # Home Route
-# ------------------------------
 @app.route("/")
 def home():
     conn = get_db_connection()
@@ -135,10 +134,7 @@ def home():
     conn.close()
     return render_template("index.html", books=books)
 
-
-# ------------------------------
 # Add Book Route
-# ------------------------------
 @app.route("/add", methods=["GET", "POST"])
 def add_book():
     if request.method == "POST":
@@ -168,8 +164,5 @@ def logout():
     return redirect(url_for("login"))
 
 
-# ------------------------------
-# Run App
-# ------------------------------
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,3 +1,4 @@
+#dummy script used to display data of my db
 import sqlite3
 
 conn = sqlite3.connect("books.db")
