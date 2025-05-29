@@ -234,7 +234,8 @@ select:hover {
 }
 
 .recommend-form input, 
-.recommend-form select {
+.recommend-form select,
+.recommend-form textarea {
     width: 85%;
     padding: 12px;
     margin: 8px 0;
